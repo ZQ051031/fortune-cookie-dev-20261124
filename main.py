@@ -1,47 +1,48 @@
-"""Fortune Cookie Wisdom for Developers: one original fortune-cookie line.
+"""A single fortune-cookie line for developers, written for the
+make.fun micro-bounty of the same name.
 
-Entry line: A bug caught in review is a gift; a bug caught in
-production charges interest.
+The fortune, in the cookie's voice:
 
-A fortune cookie line for a developer, in the cookie's voice: short,
-a little wise, and true about a developer's day. A bug found in review
-costs nothing but a comment; the same bug found in production bills
-you with interest.
+    A bug caught in review is a gift; a bug caught in production
+    charges interest.
+
+The idea is simple: a bug spotted while a teammate reads your code
+costs you nothing more than a comment. The same bug slipping through
+to production keeps billing you, with interest, until you fix it.
 """
 
 import os
 
-ENTRY = "A bug caught in review is a gift; a bug caught in production charges interest."
+FORTUNE = "A bug caught in review is a gift; a bug caught in production charges interest."
 
 
-def validate_entry(line: str) -> str:
-    """Enforce the competition gate: one line, 1-120 UTF-8 chars."""
-    if not line or line.strip() != line:
-        raise ValueError("entry must not be empty or padded with whitespace")
-    if "\n" in line or "\r" in line:
-        raise ValueError("entry must be exactly one line")
-    if not 1 <= len(line) <= 120:
-        raise ValueError("entry must be 1-120 characters")
-    line.encode("utf-8")
-    return line
+def check_line(text: str) -> str:
+    """Check the fortune meets the bounty rules: one line, 1-120 chars."""
+    if not text:
+        raise ValueError("fortune must not be empty")
+    if text != text.strip():
+        raise ValueError("fortune must not start or end with whitespace")
+    if "\n" in text or "\r" in text:
+        raise ValueError("fortune must be a single line")
+    if len(text) < 1 or len(text) > 120:
+        raise ValueError("fortune must be between 1 and 120 characters long")
+    text.encode("utf-8")
+    return text
 
 
-def output_path() -> str:
-    output_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
-    os.makedirs(output_dir, exist_ok=True)
-    return os.path.join(output_dir, "entry.txt")
-
-
-def write_entry() -> str:
-    line = validate_entry(ENTRY)
-    path = output_path()
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(line)
-    return path
+def entry_path() -> str:
+    """Resolve where entry.txt goes, honouring MAKEFUN_OUTPUT_DIR."""
+    directory = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+    os.makedirs(directory, exist_ok=True)
+    return os.path.join(directory, "entry.txt")
 
 
 def main() -> None:
-    write_entry()
+    """Validate the fortune and write it out with no trailing newline."""
+    line = check_line(FORTUNE)
+    path = entry_path()
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write(line)
 
 
 if __name__ == "__main__":
